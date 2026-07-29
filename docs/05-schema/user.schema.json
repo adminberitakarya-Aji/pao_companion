@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/user.schema.json",
+  "title": "User",
+  "description": "Canonical schema for a PAO Companion account owner.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "identity",
+    "preferences",
+    "security",
+    "subscription",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique user identifier."
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "identity": {
+      "$ref": "#/$defs/Identity"
+    },
+
+    "preferences": {
+      "$ref": "#/$defs/Preferences"
+    },
+
+    "security": {
+      "$ref": "#/$defs/Security"
+    },
+
+    "subscription": {
+      "$ref": "#/$defs/Subscription"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "Identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayName",
+        "email",
+        "status"
+      ],
+      "properties": {
+
+        "displayName": {
+          "type": "string"
+        },
+
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+
+        "avatar": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "locale": {
+          "type": "string"
+        },
+
+        "timezone": {
+          "type": "string"
+        },
+
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "inactive",
+            "suspended",
+            "deleted"
+          ]
+        }
+      }
+    },
+
+    "Preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language",
+        "theme",
+        "notifications"
+      ],
+      "properties": {
+
+        "language": {
+          "type": "string"
+        },
+
+        "theme": {
+          "type": "string",
+          "enum": [
+            "system",
+            "light",
+            "dark"
+          ]
+        },
+
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        }
+      }
+    },
+
+    "Notifications": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "push",
+        "email"
+      ],
+      "properties": {
+
+        "push": {
+          "type": "boolean"
+        },
+
+        "email": {
+          "type": "boolean"
+        },
+
+        "marketing": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "Security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "emailVerified",
+        "twoFactorEnabled"
+      ],
+      "properties": {
+
+        "emailVerified": {
+          "type": "boolean"
+        },
+
+        "twoFactorEnabled": {
+          "type": "boolean"
+        },
+
+        "lastLoginAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Subscription": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan",
+        "status"
+      ],
+      "properties": {
+
+        "plan": {
+          "type": "string",
+          "enum": [
+            "free",
+            "basic",
+            "premium",
+            "pro"
+          ]
+        },
+
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "trial",
+            "expired",
+            "cancelled"
+          ]
+        },
+
+        "credits": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "renewalAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "schemaVersion": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,239 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/memory.schema.json",
+  "title": "Memory",
+  "description": "Canonical schema for long-term knowledge maintained by an AI Companion.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "userId",
+    "companionId",
+    "memory",
+    "evidence",
+    "importance",
+    "lifecycle",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "userId": {
+      "type": "string"
+    },
+
+    "companionId": {
+      "type": "string"
+    },
+
+    "memory": {
+      "$ref": "#/$defs/Memory"
+    },
+
+    "evidence": {
+      "$ref": "#/$defs/Evidence"
+    },
+
+    "importance": {
+      "$ref": "#/$defs/Importance"
+    },
+
+    "lifecycle": {
+      "$ref": "#/$defs/Lifecycle"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "Memory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "category",
+        "subject",
+        "predicate",
+        "object",
+        "confidence"
+      ],
+      "properties": {
+
+        "category": {
+          "type": "string",
+          "enum": [
+            "preference",
+            "profile",
+            "relationship",
+            "habit",
+            "goal",
+            "fact",
+            "event",
+            "emotion",
+            "custom"
+          ]
+        },
+
+        "subject": {
+          "type": "string",
+          "description": "Primary entity."
+        },
+
+        "predicate": {
+          "type": "string",
+          "description": "Relationship between subject and object."
+        },
+
+        "object": {
+          "type": "string",
+          "description": "Target entity or value."
+        },
+
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+
+        "qualifiers": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+
+    "Evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "references"
+      ],
+      "properties": {
+
+        "source": {
+          "type": "string",
+          "enum": [
+            "conversation",
+            "timeline",
+            "user_profile",
+            "system",
+            "manual"
+          ]
+        },
+
+        "references": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+
+        "lastVerifiedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Importance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "score",
+        "reason"
+      ],
+      "properties": {
+
+        "score": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "createdFrom"
+      ],
+      "properties": {
+
+        "status": {
+          "type": "string",
+          "enum": [
+            "candidate",
+            "confirmed",
+            "deprecated",
+            "archived"
+          ]
+        },
+
+        "createdFrom": {
+          "type": "string",
+          "enum": [
+            "conversation",
+            "timeline",
+            "user_input",
+            "system"
+          ]
+        },
+
+        "updatedCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "expiresAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

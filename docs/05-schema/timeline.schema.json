@@ -1,0 +1,204 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/timeline.schema.json",
+  "title": "Timeline",
+  "description": "Canonical schema for chronological events shared between a user and an AI companion.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "userId",
+    "companionId",
+    "event",
+    "context",
+    "source",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique timeline event identifier."
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "userId": {
+      "type": "string"
+    },
+
+    "companionId": {
+      "type": "string"
+    },
+
+    "event": {
+      "$ref": "#/$defs/Event"
+    },
+
+    "context": {
+      "$ref": "#/$defs/Context"
+    },
+
+    "source": {
+      "$ref": "#/$defs/Source"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "title",
+        "description",
+        "occurredAt",
+        "importance"
+      ],
+      "properties": {
+
+        "type": {
+          "type": "string",
+          "enum": [
+            "relationship",
+            "conversation",
+            "life_event",
+            "celebration",
+            "achievement",
+            "memory",
+            "media",
+            "system",
+            "custom"
+          ]
+        },
+
+        "title": {
+          "type": "string"
+        },
+
+        "description": {
+          "type": "string"
+        },
+
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "importance": {
+          "type": "string",
+          "enum": [
+            "low",
+            "normal",
+            "high",
+            "critical"
+          ]
+        }
+      }
+    },
+
+    "Context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conversationId",
+        "relationshipStage"
+      ],
+      "properties": {
+
+        "conversationId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "relationshipStage": {
+          "type": "string"
+        },
+
+        "location": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+
+    "Source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin",
+        "generatedBy"
+      ],
+      "properties": {
+
+        "origin": {
+          "type": "string",
+          "enum": [
+            "user",
+            "companion",
+            "system",
+            "engine"
+          ]
+        },
+
+        "generatedBy": {
+          "type": "string",
+          "enum": [
+            "timeline_engine",
+            "relationship_engine",
+            "conversation_engine",
+            "memory_engine",
+            "media_engine",
+            "system"
+          ]
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "archived": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    }
+  }
+}

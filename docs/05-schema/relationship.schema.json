@@ -1,0 +1,248 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/relationship.schema.json",
+  "title": "Relationship",
+  "description": "Canonical schema for the relationship between a user and an AI companion.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "userId",
+    "companionId",
+    "status",
+    "metrics",
+    "milestones",
+    "boundaries",
+    "statistics",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique relationship identifier."
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "userId": {
+      "type": "string"
+    },
+
+    "companionId": {
+      "type": "string"
+    },
+
+    "status": {
+      "$ref": "#/$defs/RelationshipStatus"
+    },
+
+    "metrics": {
+      "$ref": "#/$defs/Metrics"
+    },
+
+    "milestones": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Milestone"
+      }
+    },
+
+    "boundaries": {
+      "$ref": "#/$defs/Boundaries"
+    },
+
+    "statistics": {
+      "$ref": "#/$defs/Statistics"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "RelationshipStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stage",
+        "startedAt",
+        "lastInteractionAt"
+      ],
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": [
+            "new",
+            "acquaintance",
+            "friend",
+            "close_friend",
+            "partner"
+          ]
+        },
+
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "lastInteractionAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trust",
+        "affection",
+        "intimacy",
+        "comfort",
+        "loyalty"
+      ],
+      "properties": {
+
+        "trust": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+
+        "affection": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+
+        "intimacy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+
+        "comfort": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+
+        "loyalty": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+
+    "Milestone": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "title",
+        "occurredAt"
+      ],
+      "properties": {
+
+        "type": {
+          "type": "string"
+        },
+
+        "title": {
+          "type": "string"
+        },
+
+        "occurredAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Boundaries": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "romanticEnabled",
+        "nsfwEnabled",
+        "voiceCallEnabled",
+        "videoCallEnabled"
+      ],
+      "properties": {
+
+        "romanticEnabled": {
+          "type": "boolean"
+        },
+
+        "nsfwEnabled": {
+          "type": "boolean"
+        },
+
+        "voiceCallEnabled": {
+          "type": "boolean"
+        },
+
+        "videoCallEnabled": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "Statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "conversationCount",
+        "messageCount",
+        "daysTogether"
+      ],
+      "properties": {
+
+        "conversationCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "messageCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "daysTogether": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

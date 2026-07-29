@@ -1,0 +1,318 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/conversation.schema.json",
+  "title": "Conversation",
+  "description": "Canonical schema for conversations between a user and an AI companion.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "userId",
+    "companionId",
+    "status",
+    "turns",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "userId": {
+      "type": "string"
+    },
+
+    "companionId": {
+      "type": "string"
+    },
+
+    "status": {
+      "$ref": "#/$defs/ConversationStatus"
+    },
+
+    "turns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ConversationTurn"
+      }
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "ConversationStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "startedAt"
+      ],
+      "properties": {
+
+        "state": {
+          "type": "string",
+          "enum": [
+            "active",
+            "paused",
+            "archived",
+            "closed"
+          ]
+        },
+
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "endedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "ConversationTurn": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sequence",
+        "participants",
+        "messages",
+        "execution",
+        "timestamps"
+      ],
+      "properties": {
+
+        "id": {
+          "type": "string"
+        },
+
+        "sequence": {
+          "type": "integer",
+          "minimum": 1
+        },
+
+        "participants": {
+          "$ref": "#/$defs/Participants"
+        },
+
+        "messages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Message"
+          }
+        },
+
+        "execution": {
+          "$ref": "#/$defs/Execution"
+        },
+
+        "timestamps": {
+          "$ref": "#/$defs/Timestamps"
+        }
+      }
+    },
+
+    "Participants": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "companionId"
+      ],
+      "properties": {
+
+        "userId": {
+          "type": "string"
+        },
+
+        "companionId": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "content",
+        "contentType",
+        "createdAt"
+      ],
+      "properties": {
+
+        "id": {
+          "type": "string"
+        },
+
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "assistant",
+            "system"
+          ]
+        },
+
+        "content": {
+          "type": "string"
+        },
+
+        "contentType": {
+          "type": "string",
+          "enum": [
+            "text",
+            "image",
+            "voice",
+            "video",
+            "mixed"
+          ]
+        },
+
+        "attachments": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "model",
+        "promptVersion",
+        "latencyMs",
+        "tokenUsage"
+      ],
+      "properties": {
+
+        "provider": {
+          "type": "string"
+        },
+
+        "model": {
+          "type": "string"
+        },
+
+        "promptVersion": {
+          "type": "string"
+        },
+
+        "latencyMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "tokenUsage": {
+          "$ref": "#/$defs/TokenUsage"
+        },
+
+        "cost": {
+          "type": "number",
+          "minimum": 0
+        },
+
+        "fallback": {
+          "type": "boolean"
+        }
+      }
+    },
+
+    "TokenUsage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input",
+        "output",
+        "total"
+      ],
+      "properties": {
+
+        "input": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "output": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+
+    "Timestamps": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "startedAt",
+        "completedAt"
+      ],
+      "properties": {
+
+        "startedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+// PAO Companion — Database Schema
+// Phase 0: hanya model dasar untuk validasi bootstrap.
+// Phase 1 akan melengkapi User; Phase 2+ menambah Conversation, Message, dll.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  companions Companion[]
+
+  @@map("users")
+}
+
+model Companion {
+  id        String   @id @default(cuid())
+  name      String
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // TODO Phase 3: relasi ke Character, Memory, Relationship, Timeline
+
+  @@map("companions")
+}

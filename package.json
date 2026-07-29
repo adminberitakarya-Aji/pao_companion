@@ -1,0 +1,26 @@
+{
+  "name": "pao-companion",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.1.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "pnpm --filter @pao/database run generate",
+    "db:migrate": "pnpm --filter @pao/database run migrate",
+    "db:studio": "pnpm --filter @pao/database run studio",
+    "db:seed": "pnpm --filter @pao/database run seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "typescript": "^5.5.0",
+    "prettier": "^3.3.0"
+  }
+}

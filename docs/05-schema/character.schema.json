@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/character.schema.json",
+  "title": "Character",
+  "description": "Canonical schema for AI Companion character definition.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "profile",
+    "appearance",
+    "personality",
+    "communication",
+    "relationshipDefaults",
+    "media",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique character identifier."
+    },
+
+    "version": {
+      "type": "string",
+      "description": "Schema version."
+    },
+
+    "profile": {
+      "$ref": "#/$defs/Profile"
+    },
+
+    "appearance": {
+      "$ref": "#/$defs/Appearance"
+    },
+
+    "personality": {
+      "$ref": "#/$defs/Personality"
+    },
+
+    "communication": {
+      "$ref": "#/$defs/Communication"
+    },
+
+    "relationshipDefaults": {
+      "$ref": "#/$defs/RelationshipDefaults"
+    },
+
+    "media": {
+      "$ref": "#/$defs/Media"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "Profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "gender",
+        "age",
+        "language",
+        "timezone"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string",
+          "enum": [
+            "female",
+            "male"
+          ]
+        },
+        "age": {
+          "type": "integer",
+          "minimum": 18
+        },
+        "language": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Appearance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ethnicity",
+        "hair",
+        "eyes",
+        "heightCm",
+        "bodyType",
+        "style"
+      ],
+      "properties": {
+        "ethnicity": {
+          "type": "string"
+        },
+        "hair": {
+          "type": "string"
+        },
+        "eyes": {
+          "type": "string"
+        },
+        "heightCm": {
+          "type": "integer"
+        },
+        "bodyType": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Personality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "traits",
+        "values",
+        "humor",
+        "romance",
+        "empathy"
+      ],
+      "properties": {
+        "traits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "humor": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "romance": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "empathy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+
+    "Communication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tone",
+        "emojiUsage",
+        "messageLength"
+      ],
+      "properties": {
+        "tone": {
+          "type": "string"
+        },
+        "emojiUsage": {
+          "type": "string",
+          "enum": [
+            "never",
+            "rare",
+            "normal",
+            "frequent"
+          ]
+        },
+        "messageLength": {
+          "type": "string",
+          "enum": [
+            "short",
+            "medium",
+            "long"
+          ]
+        }
+      }
+    },
+
+    "RelationshipDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trust",
+        "affection",
+        "intimacy"
+      ],
+      "properties": {
+        "trust": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "affection": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "intimacy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+
+    "Media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileImage",
+        "voiceProfile"
+      ],
+      "properties": {
+        "profileImage": {
+          "type": "string"
+        },
+        "voiceProfile": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

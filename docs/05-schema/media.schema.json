@@ -1,0 +1,233 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schema.pao-companion.ai/media.schema.json",
+  "title": "Media",
+  "description": "Canonical schema for media assets owned by an AI companion.",
+  "type": "object",
+  "additionalProperties": false,
+
+  "required": [
+    "id",
+    "version",
+    "userId",
+    "companionId",
+    "asset",
+    "generation",
+    "storage",
+    "metadata"
+  ],
+
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+
+    "version": {
+      "type": "string"
+    },
+
+    "userId": {
+      "type": "string"
+    },
+
+    "companionId": {
+      "type": "string"
+    },
+
+    "asset": {
+      "$ref": "#/$defs/Asset"
+    },
+
+    "generation": {
+      "$ref": "#/$defs/Generation"
+    },
+
+    "storage": {
+      "$ref": "#/$defs/Storage"
+    },
+
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    }
+  },
+
+  "$defs": {
+
+    "Asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "role",
+        "status",
+        "mimeType"
+      ],
+      "properties": {
+
+        "type": {
+          "type": "string",
+          "enum": [
+            "image",
+            "voice",
+            "video",
+            "audio",
+            "document",
+            "other"
+          ]
+        },
+
+        "role": {
+          "type": "string",
+          "enum": [
+            "profile",
+            "gallery",
+            "conversation",
+            "timeline",
+            "memory",
+            "attachment",
+            "generated",
+            "custom"
+          ]
+        },
+
+        "status": {
+          "type": "string",
+          "enum": [
+            "processing",
+            "ready",
+            "failed",
+            "archived"
+          ]
+        },
+
+        "mimeType": {
+          "type": "string"
+        },
+
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+
+        "checksum": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Generation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "origin"
+      ],
+      "properties": {
+
+        "origin": {
+          "type": "string",
+          "enum": [
+            "uploaded",
+            "generated",
+            "imported"
+          ]
+        },
+
+        "provider": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "promptVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "generatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+
+    "Storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "uri",
+        "visibility"
+      ],
+      "properties": {
+
+        "uri": {
+          "type": "string"
+        },
+
+        "thumbnailUri": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "private",
+            "shared",
+            "public"
+          ]
+        },
+
+        "retentionPolicy": {
+          "type": "string"
+        }
+      }
+    },
+
+    "Metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+
+        "favorite": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
