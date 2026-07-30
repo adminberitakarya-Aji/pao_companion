@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2021",
+    "noEmit": true
+  },
+  "include": ["scripts/**/*.ts", "core/**/*.ts"]
+}

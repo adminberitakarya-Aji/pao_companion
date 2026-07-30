@@ -1,4 +1,4 @@
-import { Character, CharacterProps } from "../character/character.entity";
+import { Character } from "../character/character.entity";
 
 export interface CompanionProps {
   id: string;
@@ -33,7 +33,6 @@ export class Companion {
     return this._character;
   }
 
-  // Dipanggil dari use-case setelah image provider (fal.ai) selesai generate.
   attachGeneratedAvatar(url: string): void {
     this._character.attachGeneratedAvatar(url);
   }

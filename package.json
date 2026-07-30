@@ -16,11 +16,27 @@
     "db:generate": "pnpm --filter @pao/database run generate",
     "db:migrate": "pnpm --filter @pao/database run migrate",
     "db:studio": "pnpm --filter @pao/database run studio",
-    "db:seed": "pnpm --filter @pao/database run seed"
+    "db:seed": "pnpm --filter @pao/database run seed",
+    "test:llm": "dotenv -e .env -- ts-node --transpile-only scripts/test-llm-providers.ts",
+    "test:prompt": "dotenv -e .env -- ts-node --transpile-only scripts/test-prompt-builder.ts",
+    "test:conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-conversation-runtime.ts"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1"
   },
   "devDependencies": {
     "turbo": "^2.1.0",
     "typescript": "^5.5.0",
-    "prettier": "^3.3.0"
+    "prettier": "^3.3.0",
+    "ts-node": "^10.9.2",
+    "dotenv-cli": "^7.4.2",
+    "@types/bcrypt": "^5.0.2"
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "CommonJS",
+      "moduleResolution": "Node"
+    }
   }
 }

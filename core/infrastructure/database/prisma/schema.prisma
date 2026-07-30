@@ -1,7 +1,6 @@
 // PAO Companion — Database Schema
-// Phase 1 (lengkap): User (auth) + Companion+Character (digabung 1 tabel
-// karena 1:1 dan siklus hidup sama — lihat catatan di companion.entity.ts
-// & character.entity.ts kenapa tidak dipisah jadi 2 tabel/aggregate).
+// Phase 2 patch 1: tambah Conversation + Message untuk vertical slice
+// percakapan. User + Companion dari Phase 1 tidak berubah.
 
 generator client {
   provider = "prisma-client-js"
@@ -25,6 +24,11 @@ enum AvatarStatus {
   FAILED
 }
 
+enum MessageRole {
+  USER
+  COMPANION
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -40,18 +44,49 @@ model User {
 
 model Companion {
   id      String @id @default(cuid())
-  ownerId String @unique   // UNIQUE — enforce 1 companion per user di level DB
+  ownerId String @unique
   owner   User   @relation(fields: [ownerId], references: [id])
 
-  personaType PersonaType   // IMMUTABLE setelah create (dijaga di domain layer, tidak ada endpoint untuk mengubah field ini)
+  personaType PersonaType
   name        String
   appearanceDescription  String
   personalityDescription String?
   avatarUrl              String?
   avatarStatus           AvatarStatus @default(PENDING)
 
+  conversation Conversation?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("companions")
+}
+
+model Conversation {
+  id          String    @id @default(cuid())
+  companionId String    @unique   // 1 companion = 1 conversation berkelanjutan
+  companion   Companion @relation(fields: [companionId], references: [id])
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+
+  @@map("conversations")
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+
+  role    MessageRole
+  content String
+
+  createdAt DateTime @default(now())
+
+  // Index untuk query "ambil N pesan terbaru per conversation" (dipakai
+  // MessageRepository.findRecent) — tanpa ini query akan full-scan seiring
+  // history bertambah banyak.
+  @@index([conversationId, createdAt])
+  @@map("messages")
 }

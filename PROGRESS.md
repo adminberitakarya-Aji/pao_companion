@@ -27,8 +27,8 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 **Status Phase 1**: ✅ Selesai
 
 ## Phase 2 — Vertical Slice Percakapan
-- [ ] P2-1 Domain Conversation
-- [ ] P2-2 Provider adapter LLM
+- [x] P2-1 Domain Conversation
+- [x] P2-2 Provider adapter LLM
 - [ ] P2-3 Prompt builder
 - [ ] P2-4 Context assembler
 - [ ] P2-5 Provider runtime orchestration

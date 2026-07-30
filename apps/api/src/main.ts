@@ -2,20 +2,23 @@ import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
+import { DomainErrorFilter } from "./shared/domain-error.filter";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors();
 
-  // Global validation — otomatis reject request yang tidak sesuai DTO
-  // (class-validator decorators di RegisterDto, LoginDto, dst).
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,        // buang field yang tidak terdaftar di DTO
+      whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
     }),
   );
+
+  // Global — terjemahkan semua DomainError (dari core/domain & core/application)
+  // jadi HTTP response dengan status code yang benar.
+  app.useGlobalFilters(new DomainErrorFilter());
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

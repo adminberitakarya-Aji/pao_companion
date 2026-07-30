@@ -7,10 +7,23 @@ settings:
 importers:
 
   .:
+    dependencies:
+      bcrypt:
+        specifier: ^5.1.1
+        version: 5.1.1
     devDependencies:
+      '@types/bcrypt':
+        specifier: ^5.0.2
+        version: 5.0.2
+      dotenv-cli:
+        specifier: ^7.4.2
+        version: 7.4.4
       prettier:
         specifier: ^3.3.0
         version: 3.9.6
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@20.19.43)(typescript@5.9.3)
       turbo:
         specifier: ^2.1.0
         version: 2.10.7
@@ -1673,6 +1686,10 @@ packages:
 
   dotenv-cli@11.0.0:
     resolution: {integrity: sha512-r5pA8idbk7GFWuHEU7trSTflWcdBpQEK+Aw17UrSHjS6CReuhrrPcyC3zcQBPQvhArRHnBo/h6eLH1fkCvNlww==}
+    hasBin: true
+
+  dotenv-cli@7.4.4:
+    resolution: {integrity: sha512-XkBYCG0tPIes+YZr4SpfFv76SQrV/LeCE8CI7JSEMi3VR9MvTihCGTOtbIexD6i2mXF+6px7trb1imVCXSNMDw==}
     hasBin: true
 
   dotenv-expand@10.0.0:
@@ -5635,6 +5652,13 @@ snapshots:
       cross-spawn: 7.0.6
       dotenv: 17.4.2
       dotenv-expand: 12.0.3
+      minimist: 1.2.8
+
+  dotenv-cli@7.4.4:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 16.4.5
+      dotenv-expand: 10.0.0
       minimist: 1.2.8
 
   dotenv-expand@10.0.0: {}

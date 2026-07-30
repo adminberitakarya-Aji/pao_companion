@@ -2,11 +2,11 @@ import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from "class-valid
 
 export class RegisterDto {
   @IsEmail({}, { message: "Email tidak valid" })
-  email: string;
+  email!: string;
 
   @IsString()
   @MinLength(8, { message: "Password minimal 8 karakter" })
-  password: string;
+  password!: string;
 
   @IsOptional()
   @IsString()
