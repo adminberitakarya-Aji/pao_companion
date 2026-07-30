@@ -4,6 +4,7 @@ import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./shared/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { CompanionModule } from "./companion/companion.module";
+import { ConversationModule } from "./conversation/conversation.module";
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { CompanionModule } from "./companion/companion.module";
     HealthModule,
     AuthModule,
     CompanionModule,
-    // TODO Phase 2: ConversationModule (core/runtime/conversation orchestration)
+    ConversationModule,
   ],
 })
 export class AppModule {}

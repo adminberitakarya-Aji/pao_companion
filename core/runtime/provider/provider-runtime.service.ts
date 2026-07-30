@@ -3,24 +3,22 @@ import { LlmGenerateInput, LlmGenerateResult } from "../../infrastructure/provid
 import { Logger } from "../../shared/logger/logger";
 
 export interface GenerateReplyOptions {
-  // Diisi oleh caller (Conversation Runtime). Untuk sekarang selalu
-  // "default" — TODO Phase 3: Timeline Runtime akan mengisi ini dengan
-  // "premium-moment" saat mendeteksi milestone hubungan penting.
   reason?: ProviderSelectionReason;
 }
 
-// Provider Runtime — SATU-SATUNYA tempat yang memutuskan "pakai provider
-// LLM yang mana". Conversation Runtime tidak tahu ada Gemini/Claude sama
-// sekali, dia cuma panggil generateReply() di sini.
-//
-// Logika saat ini:
-// - reason "default" -> coba PRIMARY (Gemini Flash) dulu; kalau gagal,
-//   otomatis fallback ke Claude Sonnet (reliability)
-// - reason "premium-moment" -> langsung pakai Claude Sonnet (tanpa nyoba
-//   primary dulu), karena caller sudah eksplisit minta kualitas lebih tinggi
+// Tipe ini SENGAJA cuma "Pick" 2 method yang dibutuhkan (bukan import
+// LlmProviderFactory secara langsung sebagai tipe parameter) — supaya
+// ProviderRuntime bisa diuji pakai factory palsu (fake) di integration
+// test tanpa harus benar-benar instantiate GeminiFlashProvider/
+// ClaudeSonnetProvider asli (yang butuh API key sungguhan).
+export type LlmProviderFactoryPort = Pick<
+  LlmProviderFactory,
+  "getPrimary" | "getFallbackOrPremium"
+>;
+
 export class ProviderRuntime {
   constructor(
-    private readonly factory: LlmProviderFactory,
+    private readonly factory: LlmProviderFactoryPort,
     private readonly logger: Logger,
   ) {}
 
@@ -41,9 +39,6 @@ export class ProviderRuntime {
       this.logger.warn("Primary LLM provider gagal, fallback ke provider kedua", {
         error: err instanceof Error ? err.message : String(err),
       });
-      // Fallback HANYA untuk reliability — bukan berarti kualitas jadi
-      // "premium" secara sengaja, cuma kebetulan providernya sama dengan
-      // yang dipakai untuk premium-moment.
       return this.factory.getFallbackOrPremium().generateReply(input);
     }
   }

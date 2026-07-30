@@ -29,10 +29,10 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 ## Phase 2 — Vertical Slice Percakapan
 - [x] P2-1 Domain Conversation
 - [x] P2-2 Provider adapter LLM
-- [ ] P2-3 Prompt builder
-- [ ] P2-4 Context assembler
-- [ ] P2-5 Provider runtime orchestration
-- [ ] P2-6 Conversation runtime orchestration
+- [x] P2-3 Prompt builder
+- [x] P2-4 Context assembler
+- [x] P2-5 Provider runtime orchestration
+- [x] P2-6 Conversation runtime orchestration
 - [ ] P2-7 API endpoint chat
 - [ ] P2-8 Integration test
 **Status Phase 2**: ⬜ Belum mulai
