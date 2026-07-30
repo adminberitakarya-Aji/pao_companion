@@ -35,7 +35,7 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 - [x] P2-6 Conversation runtime orchestration
 - [x] P2-7 API endpoint chat
 - [x] P2-8 Integration test
-**Status Phase 2**: ⬜ Belum mulai
+**Status Phase 2**: ✅ Selesai
 
 ## Phase 3 — Companion Engine
 - [ ] P3-1 Memory
