@@ -33,8 +33,8 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 - [x] P2-4 Context assembler
 - [x] P2-5 Provider runtime orchestration
 - [x] P2-6 Conversation runtime orchestration
-- [ ] P2-7 API endpoint chat
-- [ ] P2-8 Integration test
+- [x] P2-7 API endpoint chat
+- [x] P2-8 Integration test
 **Status Phase 2**: ⬜ Belum mulai
 
 ## Phase 3 — Companion Engine
