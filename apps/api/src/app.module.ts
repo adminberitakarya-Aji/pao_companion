@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { HealthModule } from "./health/health.module";
+import { PrismaModule } from "./shared/prisma.module";
+import { AuthModule } from "./auth/auth.module";
+import { CompanionModule } from "./companion/companion.module";
 
 @Module({
   imports: [
@@ -8,8 +11,10 @@ import { HealthModule } from "./health/health.module";
       isGlobal: true,
       envFilePath: ["../../.env", ".env"],
     }),
+    PrismaModule,
     HealthModule,
-    // TODO Phase 1: AuthModule
+    AuthModule,
+    CompanionModule,
     // TODO Phase 2: ConversationModule (core/runtime/conversation orchestration)
   ],
 })

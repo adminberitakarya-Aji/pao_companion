@@ -11,20 +11,20 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 - [x] P0-5 Prisma schema dasar (core/infrastructure/database)
 - [x] P0-6 CI pipeline (.github/workflows/ci.yml)
 - [x] P0-7 .env.example
-**Status Phase 0**: 🟡 Berjalan — generated, belum `pnpm install` & belum di-push ke GitHub
+**Status Phase 0**: ✅ Berjalan — generated, belum `pnpm install` & belum di-push ke GitHub
 
 > Catatan: task di atas checklist "generated" oleh Claude, tapi Phase 0 baru
 > benar-benar DoD-complete setelah kamu jalankan `pnpm install && pnpm dev`
 > dan CI hijau di push pertama ke repo. Update jadi ✅ setelah itu terverifikasi.
 
 ## Phase 1 — Core Domain
-- [ ] P1-1 Schema User/Companion/Character (lengkap)
-- [ ] P1-2 Domain User
-- [ ] P1-3 Domain Companion
-- [ ] P1-4 Auth flow
-- [ ] P1-5 Shared errors/logger/validation
-- [ ] P1-6 Auth guard
-**Status Phase 1**: ⬜ Belum mulai
+- [x] P1-1 Schema User/Companion/Character (lengkap)
+- [x] P1-2 Domain User
+- [x] P1-3 Domain Companion
+- [x] P1-4 Auth flow
+- [x] P1-5 Shared errors/logger/validation
+- [x] P1-6 Auth guard
+**Status Phase 1**: ✅ Selesai
 
 ## Phase 2 — Vertical Slice Percakapan
 - [ ] P2-1 Domain Conversation

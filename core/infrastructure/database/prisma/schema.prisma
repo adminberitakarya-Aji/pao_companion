@@ -1,6 +1,7 @@
 // PAO Companion — Database Schema
-// Phase 0: hanya model dasar untuk validasi bootstrap.
-// Phase 1 akan melengkapi User; Phase 2+ menambah Conversation, Message, dll.
+// Phase 1 (lengkap): User (auth) + Companion+Character (digabung 1 tabel
+// karena 1:1 dan siklus hidup sama — lihat catatan di companion.entity.ts
+// & character.entity.ts kenapa tidak dipisah jadi 2 tabel/aggregate).
 
 generator client {
   provider = "prisma-client-js"
@@ -12,28 +13,45 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum PersonaType {
+  GIRLFRIEND
+  BOYFRIEND
+}
 
-  companions Companion[]
+enum AvatarStatus {
+  PENDING
+  GENERATING
+  READY
+  FAILED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  companion Companion?
 
   @@map("users")
 }
 
 model Companion {
-  id        String   @id @default(cuid())
-  name      String
-  ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id])
+  id      String @id @default(cuid())
+  ownerId String @unique   // UNIQUE — enforce 1 companion per user di level DB
+  owner   User   @relation(fields: [ownerId], references: [id])
+
+  personaType PersonaType   // IMMUTABLE setelah create (dijaga di domain layer, tidak ada endpoint untuk mengubah field ini)
+  name        String
+  appearanceDescription  String
+  personalityDescription String?
+  avatarUrl              String?
+  avatarStatus           AvatarStatus @default(PENDING)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // TODO Phase 3: relasi ke Character, Memory, Relationship, Timeline
 
   @@map("companions")
 }
