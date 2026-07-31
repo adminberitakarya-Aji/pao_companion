@@ -5,13 +5,6 @@ import {
   LlmMessage,
 } from "./llm-provider.interface";
 
-// FALLBACK / PREMIUM provider — dipakai saat Gemini Flash gagal (reliability)
-// ATAU saat Timeline Runtime menandai momen penting (milestone hubungan) —
-// lihat catatan desain routing di ROADMAP.md Phase 3.
-//
-// CATATAN: nama model di-hardcode default "claude-sonnet-4-5" tapi bisa
-// di-override lewat env ANTHROPIC_MODEL — cek https://docs.claude.com
-// untuk model string terbaru yang tersedia saat Anda deploy.
 export class ClaudeSonnetProvider implements LlmProvider {
   readonly providerId = "claude-sonnet";
 
@@ -19,15 +12,15 @@ export class ClaudeSonnetProvider implements LlmProvider {
   private readonly model: string;
 
   constructor() {
-    this.apiKey = process.env.ANTHROPIC_API_KEY ?? "";
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error("ANTHROPIC_API_KEY belum di-set di .env");
+    }
+    this.apiKey = apiKey;
     this.model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
   }
 
   async generateReply(input: LlmGenerateInput): Promise<LlmGenerateResult> {
-    if (!this.apiKey) {
-      throw new Error("ANTHROPIC_API_KEY belum di-set di .env");
-    }
-
     const { system, messages } = this.toClaudeFormat(input.messages);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -52,7 +45,9 @@ export class ClaudeSonnetProvider implements LlmProvider {
       );
     }
 
-    const data = (await response.json()) as any;
+    const data = (await response.json()) as {
+      content?: Array<{ type: string; text?: string }>;
+    };
     const textBlock = data?.content?.find((block: { type: string }) => block.type === "text");
 
     if (!textBlock || typeof textBlock.text !== "string") {
@@ -62,8 +57,6 @@ export class ClaudeSonnetProvider implements LlmProvider {
     return { content: textBlock.text, providerId: this.providerId };
   }
 
-  // Claude API punya field "system" terpisah (mirip Gemini), messages
-  // hanya berisi role "user"/"assistant".
   private toClaudeFormat(messages: LlmMessage[]) {
     let system: string | undefined;
     const claudeMessages: { role: "user" | "assistant"; content: string }[] = [];
@@ -76,8 +69,12 @@ export class ClaudeSonnetProvider implements LlmProvider {
       claudeMessages.push({ role: msg.role, content: msg.content });
     }
 
+    // HOTFIX 3: sama seperti Gemini — Claude API mewajibkan array
+    // `messages` tidak boleh kosong. Kalau input cuma system prompt,
+    // masukkan sebagai satu user message tunggal.
     if (claudeMessages.length === 0 && system) {
-      claudeMessages.push({ role: "user", content: "Process" });
+      claudeMessages.push({ role: "user", content: system });
+      system = undefined;
     }
 
     return { system, messages: claudeMessages };

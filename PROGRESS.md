@@ -43,8 +43,8 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 - [x] P3-3 Timeline
 - [x] P3-4 Character diperluas
 - [x] P3-5 Context/prompt update
-- [ ] P3-6 Integration test konsistensi
-**Status Phase 3**: ⬜ Belum mulai
+- [x] P3-6 Integration test konsistensi
+**Status Phase 3**: ✅ Selesai
 
 ## Phase 4 — Safety & Trust
 - [ ] P4-1 Content moderation
