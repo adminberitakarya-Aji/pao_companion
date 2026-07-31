@@ -1,11 +1,15 @@
-import { PrismaClient, PersonaType as PrismaPersonaType, AvatarStatus as PrismaAvatarStatus } from "@prisma/client";
+import {
+  PrismaClient,
+  PersonaType as PrismaPersonaType,
+  AvatarStatus as PrismaAvatarStatus,
+  SpeechStyle as PrismaSpeechStyle,
+} from "@prisma/client";
 import { Companion } from "../../../domain/companion/companion.entity";
 import { CompanionRepository } from "../../../domain/companion/companion.repository";
 import { Character, PersonaType } from "../../../domain/character/character.entity";
 import { AvatarStatus } from "../../../domain/character/avatar-status";
+import { SpeechStyle } from "../../../domain/character/speech-style";
 
-// Mapping enum Prisma (UPPERCASE) <-> domain (lowercase) — sengaja dipisah
-// supaya domain tidak "tahu" konvensi penamaan enum Prisma.
 const toDomainPersonaType = (value: PrismaPersonaType): PersonaType =>
   value === "GIRLFRIEND" ? "girlfriend" : "boyfriend";
 
@@ -17,6 +21,12 @@ const toDomainAvatarStatus = (value: PrismaAvatarStatus): AvatarStatus =>
 
 const toPrismaAvatarStatus = (value: AvatarStatus): PrismaAvatarStatus =>
   value.toUpperCase() as PrismaAvatarStatus;
+
+const toDomainSpeechStyle = (value: PrismaSpeechStyle | null): SpeechStyle | null =>
+  value ? (value.toLowerCase() as SpeechStyle) : null;
+
+const toPrismaSpeechStyle = (value: SpeechStyle | null): PrismaSpeechStyle | null =>
+  value ? (value.toUpperCase() as PrismaSpeechStyle) : null;
 
 export class PrismaCompanionRepository implements CompanionRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -44,6 +54,9 @@ export class PrismaCompanionRepository implements CompanionRepository {
         name: c.name,
         appearanceDescription: c.appearanceDescription,
         personalityDescription: c.personalityDescription,
+        speechStyle: toPrismaSpeechStyle(c.speechStyle),
+        traits: [...c.traits],
+        backstory: c.backstory,
         avatarUrl: c.avatarUrl,
         avatarStatus: toPrismaAvatarStatus(c.avatarStatus),
       },
@@ -51,6 +64,9 @@ export class PrismaCompanionRepository implements CompanionRepository {
         name: c.name,
         appearanceDescription: c.appearanceDescription,
         personalityDescription: c.personalityDescription,
+        speechStyle: toPrismaSpeechStyle(c.speechStyle),
+        traits: [...c.traits],
+        backstory: c.backstory,
         avatarUrl: c.avatarUrl,
         avatarStatus: toPrismaAvatarStatus(c.avatarStatus),
         // personaType SENGAJA tidak di-update — immutable sesuai desain domain
@@ -65,6 +81,9 @@ export class PrismaCompanionRepository implements CompanionRepository {
     name: string;
     appearanceDescription: string;
     personalityDescription: string | null;
+    speechStyle: PrismaSpeechStyle | null;
+    traits: string[];
+    backstory: string | null;
     avatarUrl: string | null;
     avatarStatus: PrismaAvatarStatus;
     createdAt: Date;
@@ -74,6 +93,9 @@ export class PrismaCompanionRepository implements CompanionRepository {
       name: record.name,
       appearanceDescription: record.appearanceDescription,
       personalityDescription: record.personalityDescription,
+      speechStyle: toDomainSpeechStyle(record.speechStyle),
+      traits: record.traits,
+      backstory: record.backstory,
       avatarUrl: record.avatarUrl,
       avatarStatus: toDomainAvatarStatus(record.avatarStatus),
     });

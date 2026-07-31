@@ -22,6 +22,9 @@ export class GetMyCompanionUseCase {
       name: c.name,
       appearanceDescription: c.appearanceDescription,
       personalityDescription: c.personalityDescription,
+      speechStyle: c.speechStyle,
+      traits: c.traits,
+      backstory: c.backstory,
       avatarUrl: c.avatarUrl,
       avatarStatus: c.avatarStatus,
     };

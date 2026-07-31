@@ -1,6 +1,5 @@
 // PAO Companion — Database Schema
-// Phase 2 patch 1: tambah Conversation + Message untuk vertical slice
-// percakapan. User + Companion dari Phase 1 tidak berubah.
+// Phase 3 patch 4: Character diperluas — tambah speechStyle, traits, backstory.
 
 generator client {
   provider = "prisma-client-js"
@@ -29,6 +28,19 @@ enum MessageRole {
   COMPANION
 }
 
+enum TimelineEventType {
+  FIRST_CONVERSATION
+  RELATIONSHIP_LEVEL_UP
+}
+
+enum SpeechStyle {
+  FORMAL
+  CASUAL
+  PLAYFUL
+  SHY
+  CONFIDENT
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -51,10 +63,16 @@ model Companion {
   name        String
   appearanceDescription  String
   personalityDescription String?
+  speechStyle            SpeechStyle?
+  traits                 String[]     @default([])
+  backstory               String?
   avatarUrl              String?
-  avatarStatus           AvatarStatus @default(PENDING)
+  avatarStatus            AvatarStatus @default(PENDING)
 
-  conversation Conversation?
+  conversation   Conversation?
+  memories       Memory[]
+  relationship   Relationship?
+  timelineEvents TimelineEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,7 +82,7 @@ model Companion {
 
 model Conversation {
   id          String    @id @default(cuid())
-  companionId String    @unique   // 1 companion = 1 conversation berkelanjutan
+  companionId String    @unique
   companion   Companion @relation(fields: [companionId], references: [id])
 
   messages Message[]
@@ -84,9 +102,46 @@ model Message {
 
   createdAt DateTime @default(now())
 
-  // Index untuk query "ambil N pesan terbaru per conversation" (dipakai
-  // MessageRepository.findRecent) — tanpa ini query akan full-scan seiring
-  // history bertambah banyak.
   @@index([conversationId, createdAt])
   @@map("messages")
+}
+
+model Memory {
+  id          String    @id @default(cuid())
+  companionId String
+  companion   Companion @relation(fields: [companionId], references: [id])
+
+  content String
+
+  createdAt DateTime @default(now())
+
+  @@index([companionId, createdAt])
+  @@map("memories")
+}
+
+model Relationship {
+  id              String    @id @default(cuid())
+  companionId     String    @unique
+  companion       Companion @relation(fields: [companionId], references: [id])
+
+  affectionPoints Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("relationships")
+}
+
+model TimelineEvent {
+  id          String            @id @default(cuid())
+  companionId String
+  companion   Companion         @relation(fields: [companionId], references: [id])
+
+  eventType   TimelineEventType
+  description String
+
+  createdAt DateTime @default(now())
+
+  @@index([companionId, createdAt])
+  @@map("timeline_events")
 }

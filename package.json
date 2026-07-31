@@ -20,7 +20,12 @@
     "db:seed": "pnpm --filter @pao/database run seed",
     "test:llm": "dotenv -e .env -- ts-node --transpile-only scripts/test-llm-providers.ts",
     "test:prompt": "dotenv -e .env -- ts-node --transpile-only scripts/test-prompt-builder.ts",
-    "test:conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-conversation-runtime.ts"
+    "test:conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-conversation-runtime.ts",
+    "test:memory": "dotenv -e .env -- ts-node --transpile-only scripts/test-memory-extractor.ts",
+    "test:relationship": "dotenv -e .env -- ts-node --transpile-only scripts/test-relationship-runtime.ts",
+    "test:timeline": "dotenv -e .env -- ts-node --transpile-only scripts/test-timeline-runtime.ts",
+    "test:character-extended": "ts-node --transpile-only scripts/test-character-extended.ts",
+    "test:full-conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-full-conversation.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1"

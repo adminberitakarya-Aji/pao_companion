@@ -1,4 +1,14 @@
-import { IsIn, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
+import {
+  ArrayMaxSize,
+  IsArray,
+  IsIn,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from "class-validator";
+
+const VALID_SPEECH_STYLES = ["formal", "casual", "playful", "shy", "confident"];
 
 export class CreateCompanionDto {
   @IsIn(["girlfriend", "boyfriend"], {
@@ -20,4 +30,21 @@ export class CreateCompanionDto {
   @IsString()
   @MaxLength(1000)
   personalityDescription?: string;
+
+  @IsOptional()
+  @IsIn(VALID_SPEECH_STYLES, {
+    message: `speechStyle harus salah satu dari: ${VALID_SPEECH_STYLES.join(", ")}`,
+  })
+  speechStyle?: "formal" | "casual" | "playful" | "shy" | "confident";
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(8, { message: "Maksimal 8 traits" })
+  @IsString({ each: true })
+  traits?: string[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000, { message: "Backstory maksimal 1000 karakter" })
+  backstory?: string;
 }

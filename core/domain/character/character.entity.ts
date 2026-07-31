@@ -1,6 +1,13 @@
 import { CharacterAppearance } from "./character-appearance.vo";
+import { CharacterTraits } from "./character-traits.vo";
+import { CharacterBackstory } from "./character-backstory.vo";
 import { AvatarStatus } from "./avatar-status";
-import { InvalidPersonaTypeError, InvalidCharacterNameError } from "./character.errors";
+import { SpeechStyle, isValidSpeechStyle } from "./speech-style";
+import {
+  InvalidPersonaTypeError,
+  InvalidCharacterNameError,
+  InvalidSpeechStyleError,
+} from "./character.errors";
 
 export type PersonaType = "girlfriend" | "boyfriend";
 
@@ -11,20 +18,28 @@ export interface CharacterProps {
   name: string;
   appearanceDescription: string;
   personalityDescription?: string | null;
+  speechStyle?: SpeechStyle | null;
+  traits?: string[];
+  backstory?: string | null;
   avatarUrl?: string | null;
   avatarStatus?: AvatarStatus;
 }
 
-// Character BUKAN aggregate root sendiri — dia hidup di dalam aggregate
-// Companion (lihat companion.entity.ts). Alasan: siklus hidup Character
-// selalu menempel ke satu Companion (dibuat bersama, tidak pernah berdiri
-// sendiri), jadi tidak perlu repository terpisah untuk Character.
+// Character — diperluas Phase 3 patch 4 dengan speechStyle, traits, dan
+// backstory, di atas fondasi personaType/appearance/personalityDescription
+// dari Phase 1. Semua field baru OPSIONAL — companion lama (dibuat sebelum
+// patch ini) tetap valid tanpa perlu migrasi data, cuma tidak punya
+// detail tambahan sampai user meng-edit-nya (fitur edit belum ada,
+// menyusul kalau dibutuhkan).
 export class Character {
   private constructor(
     public readonly personaType: PersonaType,
     private _name: string,
     private _appearance: CharacterAppearance,
     private _personalityDescription: string | null,
+    private _speechStyle: SpeechStyle | null,
+    private _traits: CharacterTraits,
+    private _backstory: CharacterBackstory | null,
     private _avatarUrl: string | null,
     private _avatarStatus: AvatarStatus,
   ) {}
@@ -38,11 +53,22 @@ export class Character {
       throw new InvalidCharacterNameError("Nama companion minimal 2 karakter");
     }
 
+    let speechStyle: SpeechStyle | null = null;
+    if (props.speechStyle) {
+      if (!isValidSpeechStyle(props.speechStyle)) {
+        throw new InvalidSpeechStyleError(props.speechStyle);
+      }
+      speechStyle = props.speechStyle;
+    }
+
     return new Character(
       props.personaType,
       trimmedName,
       CharacterAppearance.create(props.appearanceDescription),
       props.personalityDescription?.trim() || null,
+      speechStyle,
+      CharacterTraits.create(props.traits ?? []),
+      props.backstory ? CharacterBackstory.create(props.backstory) : null,
       props.avatarUrl ?? null,
       props.avatarStatus ?? "pending",
     );
@@ -58,6 +84,18 @@ export class Character {
 
   get personalityDescription(): string | null {
     return this._personalityDescription;
+  }
+
+  get speechStyle(): SpeechStyle | null {
+    return this._speechStyle;
+  }
+
+  get traits(): readonly string[] {
+    return this._traits.values;
+  }
+
+  get backstory(): string | null {
+    return this._backstory?.value ?? null;
   }
 
   get avatarUrl(): string | null {
@@ -81,9 +119,6 @@ export class Character {
     this._avatarStatus = "failed";
   }
 
-  // Ubah deskripsi tampilan — reset avatar karena harus di-generate ulang.
-  // personaType SENGAJA tidak punya method untuk diubah (immutable, sesuai
-  // keputusan produk: ganti tipe = bikin companion baru, bukan edit).
   regenerateAppearance(newDescription: string): void {
     this._appearance = CharacterAppearance.create(newDescription);
     this._avatarUrl = null;

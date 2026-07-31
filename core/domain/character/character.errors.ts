@@ -18,3 +18,22 @@ export class InvalidAppearanceError extends DomainError {
   readonly code = "CHARACTER_INVALID_APPEARANCE";
   readonly httpStatus = 400;
 }
+
+export class InvalidSpeechStyleError extends DomainError {
+  readonly code = "CHARACTER_INVALID_SPEECH_STYLE";
+  readonly httpStatus = 400;
+
+  constructor(value: string) {
+    super(`Gaya bicara tidak valid: ${value}`);
+  }
+}
+
+export class InvalidTraitsError extends DomainError {
+  readonly code = "CHARACTER_INVALID_TRAITS";
+  readonly httpStatus = 400;
+}
+
+export class InvalidBackstoryError extends DomainError {
+  readonly code = "CHARACTER_INVALID_BACKSTORY";
+  readonly httpStatus = 400;
+}

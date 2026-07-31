@@ -19,15 +19,15 @@ export class GeminiFlashProvider implements LlmProvider {
   private readonly model: string;
 
   constructor() {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY belum di-set di .env");
-    }
-    this.apiKey = apiKey;
+    this.apiKey = process.env.GEMINI_API_KEY ?? "";
     this.model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
   }
 
   async generateReply(input: LlmGenerateInput): Promise<LlmGenerateResult> {
+    if (!this.apiKey) {
+      throw new Error("GEMINI_API_KEY belum di-set di .env");
+    }
+
     const { systemInstruction, contents } = this.toGeminiFormat(input.messages);
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
@@ -53,7 +53,7 @@ export class GeminiFlashProvider implements LlmProvider {
       );
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (typeof text !== "string") {
@@ -81,6 +81,10 @@ export class GeminiFlashProvider implements LlmProvider {
         role: msg.role === "assistant" ? "model" : "user",
         parts: [{ text: msg.content }],
       });
+    }
+
+    if (contents.length === 0 && systemInstruction) {
+      contents.push({ role: "user", parts: [{ text: "Process" }] });
     }
 
     return { systemInstruction, contents };

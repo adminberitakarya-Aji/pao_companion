@@ -7,7 +7,7 @@ interface AuthenticatedRequest {
   user: { userId: string; email: string };
 }
 
-@UseGuards(JwtAuthGuard)   // SEMUA endpoint companion wajib login
+@UseGuards(JwtAuthGuard)
 @Controller("companions")
 export class CompanionController {
   constructor(private readonly companionService: CompanionService) {}
@@ -20,6 +20,9 @@ export class CompanionController {
       name: dto.name,
       appearanceDescription: dto.appearanceDescription,
       personalityDescription: dto.personalityDescription,
+      speechStyle: dto.speechStyle,
+      traits: dto.traits,
+      backstory: dto.backstory,
     });
   }
 

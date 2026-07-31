@@ -38,11 +38,11 @@ Referensi detail tiap task ID ada di `ROADMAP.md`.
 **Status Phase 2**: ✅ Selesai
 
 ## Phase 3 — Companion Engine
-- [ ] P3-1 Memory
-- [ ] P3-2 Relationship
-- [ ] P3-3 Timeline
-- [ ] P3-4 Character diperluas
-- [ ] P3-5 Context/prompt update
+- [x] P3-1 Memory
+- [x] P3-2 Relationship
+- [x] P3-3 Timeline
+- [x] P3-4 Character diperluas
+- [x] P3-5 Context/prompt update
 - [ ] P3-6 Integration test konsistensi
 **Status Phase 3**: ⬜ Belum mulai
 

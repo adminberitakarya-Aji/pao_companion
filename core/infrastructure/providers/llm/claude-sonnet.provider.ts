@@ -19,15 +19,15 @@ export class ClaudeSonnetProvider implements LlmProvider {
   private readonly model: string;
 
   constructor() {
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      throw new Error("ANTHROPIC_API_KEY belum di-set di .env");
-    }
-    this.apiKey = apiKey;
+    this.apiKey = process.env.ANTHROPIC_API_KEY ?? "";
     this.model = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-5";
   }
 
   async generateReply(input: LlmGenerateInput): Promise<LlmGenerateResult> {
+    if (!this.apiKey) {
+      throw new Error("ANTHROPIC_API_KEY belum di-set di .env");
+    }
+
     const { system, messages } = this.toClaudeFormat(input.messages);
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -52,7 +52,7 @@ export class ClaudeSonnetProvider implements LlmProvider {
       );
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     const textBlock = data?.content?.find((block: { type: string }) => block.type === "text");
 
     if (!textBlock || typeof textBlock.text !== "string") {
@@ -74,6 +74,10 @@ export class ClaudeSonnetProvider implements LlmProvider {
         continue;
       }
       claudeMessages.push({ role: msg.role, content: msg.content });
+    }
+
+    if (claudeMessages.length === 0 && system) {
+      claudeMessages.push({ role: "user", content: "Process" });
     }
 
     return { system, messages: claudeMessages };
