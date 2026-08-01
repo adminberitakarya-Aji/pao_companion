@@ -4,12 +4,12 @@ import { Logger } from "../../shared/logger/logger";
 export interface ExtractMemoriesInput {
   userMessage: string;
   companionReply: string;
+  // BARU (dedup fix) — fakta yang SUDAH tersimpan, dikirim ke LLM supaya
+  // tidak mengulang fakta yang sama dengan kata-kata berbeda (pertahanan
+  // lapis pertama — lapis kedua ada di MemoryRuntime, exact-match check).
+  existingMemories?: string[];
 }
 
-// Memory Extractor — memanggil LLM dengan prompt KHUSUS (bukan prompt
-// chat biasa) untuk menyaring fakta personal dari SATU pertukaran pesan.
-// Tipe parameter "Pick<LlmProvider, ...>" — sama seperti pola ProviderRuntime
-// — supaya bisa diuji dengan fake provider tanpa API key sungguhan.
 export class MemoryExtractor {
   constructor(
     private readonly provider: Pick<LlmProvider, "generateReply">,
@@ -26,9 +26,6 @@ export class MemoryExtractor {
       });
       return this.parseFacts(result.content);
     } catch (err) {
-      // Extraction GAGAL tidak boleh menggagalkan percakapan utama —
-      // cukup log dan kembalikan array kosong. Chat tetap jalan normal,
-      // cuma tidak ada memory baru dari pertukaran ini.
       this.logger.warn("Memory extraction gagal, dilewati", {
         error: err instanceof Error ? err.message : String(err),
       });
@@ -37,15 +34,26 @@ export class MemoryExtractor {
   }
 
   private buildExtractionPrompt(input: ExtractMemoriesInput): string {
+    const existingSection =
+      input.existingMemories && input.existingMemories.length > 0
+        ? [
+            "",
+            "Fakta yang SUDAH diketahui sebelumnya (JANGAN ulangi ini, walau ditulis dengan kata-kata berbeda):",
+            ...input.existingMemories.map((f) => `- ${f}`),
+          ].join("\n")
+        : "";
+
     return [
       "Tugas kamu: baca satu pertukaran pesan berikut antara USER dan COMPANION (AI),",
-      "lalu ekstrak fakta PERSONAL tentang USER yang layak diingat jangka panjang",
+      "lalu ekstrak fakta PERSONAL BARU tentang USER yang layak diingat jangka panjang",
       "(contoh: nama, pekerjaan, kota tempat tinggal, hobi, preferensi, kejadian penting).",
+      existingSection,
       "",
       "ATURAN:",
       "- Jangan simpulkan/tebak hal yang tidak eksplisit disebutkan.",
       "- Jangan sertakan basa-basi atau emosi sesaat (mis. \"user sedang senang\").",
-      "- Jika tidak ada fakta baru yang layak diingat, kembalikan array kosong.",
+      "- JANGAN ulangi fakta yang sudah ada di daftar \"sudah diketahui\" di atas, meski ditulis dengan kata-kata berbeda atau kapitalisasi berbeda.",
+      "- Jika tidak ada fakta BARU yang layak diingat, kembalikan array kosong.",
       "- WAJIB balas HANYA dalam format JSON array of string, tanpa teks lain, tanpa markdown code block.",
       "  Contoh: [\"User bekerja sebagai guru SD\", \"User tinggal di Semarang\"]",
       "",
