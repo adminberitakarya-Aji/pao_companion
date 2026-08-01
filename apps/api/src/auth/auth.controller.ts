@@ -25,4 +25,12 @@ export class AuthController {
   async me(@Req() req: { user: { userId: string; email: string } }) {
     return { userId: req.user.userId, email: req.user.email };
   }
+
+  // Phase 4 (P4-2) — dipanggil web/mobile saat user menekan "Saya
+  // mengerti" di layar onboarding AI disclosure.
+  @UseGuards(JwtAuthGuard)
+  @Post("acknowledge-ai-disclosure")
+  async acknowledgeAiDisclosure(@Req() req: { user: { userId: string; email: string } }) {
+    return this.authService.acknowledgeAiDisclosure(req.user.userId);
+  }
 }

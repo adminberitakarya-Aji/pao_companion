@@ -101,16 +101,36 @@ Tujuan: implementasi kebijakan dari `docs/09-safety-and-trust/` jadi kode nyata 
 
 ---
 
-## PHASE 5 — Billing & Monetization (target: 1-2 minggu)
+## PHASE 5 — Media Engine (target: 2-3 minggu)
+
+> Diletakkan SEBELUM Web & Billing (bukan urutan awal) — ini bagian paling
+> berisiko (provider pihak ketiga baru, kualitas avatar photorealistic
+> belum teruji, biaya per-generate belum jelas). Divalidasi dulu lewat
+> script CLI (pola sama seperti `test:conversation`, `test:memory`, dst),
+> BUKAN lewat UI Web yang belum ada. Fase ini murni internal testing —
+> BELUM ada enforcement biaya/billing (itu di Phase 7); tujuannya cuma
+> mengumpulkan data biaya & kualitas nyata untuk kalibrasi billing nanti.
+
+Persona companion tetap WAJIB fiksi/AI-generated — bukan kloning wajah
+atau suara orang nyata yang bisa diidentifikasi tanpa consent eksplisit.
 
 | ID | Task | Output |
 |---|---|---|
-| P5-1 | `core/domain/wallet`, `credit`, `subscription`, `transaction` | Unit test lolos |
-| P5-2 | Integrasi payment gateway (Midtrans, konsisten dengan Klip-AI) | Sandbox transaction sukses |
-| P5-3 | Credit deduction pakai `prisma.$transaction` + `updateMany` guard (pelajaran dari race condition Klip-AI) | Test concurrent request tidak double-deduct |
-| P5-4 | Webhook handler payment, idempotent | Test replay webhook tidak duplikat transaksi |
+| P5-1 | `core/domain/media` — entity `MediaAsset` (type: avatar_image \| voice_clip \| talking_head_video, status PENDING/GENERATING/READY/FAILED, provider, costEstimate) | Unit test lolos |
+| P5-2 | `core/infrastructure/providers/image` — adapter Fal.ai (model Flux) untuk avatar image | Generate 1 foto companion photorealistic dari deskripsi Character |
+| P5-3 | `core/infrastructure/providers/voice` — adapter ElevenLabs | Generate voice clip dari teks balasan companion |
+| P5-4 | `core/infrastructure/providers/video` — adapter HeyGen/D-ID (talking-head, lip-sync dari 1 foto + audio) | Generate video companion "bicara" dari hasil P5-2 + P5-3 |
+| P5-5 | Moderasi output multimodal — perluasan `ContentModerator` (P4-1) untuk gambar/video, BUKAN cuma teks | Foto/video yang lolos guideline provider tetap dicek lapisan sendiri sebelum disimpan/ditampilkan |
+| P5-6 | `core/runtime/media` — Media Runtime: orkestrasi generate image → voice → video → moderasi → simpan, mirror pola preview/review gate (cek voice match, lip-sync, kewajaran state) | Companion bisa hasilkan paket foto+suara+video dari 1 pemanggilan |
+| P5-7 | Storage integration (`core/infrastructure/storage`) | Media tersimpan & bisa diakses via CDN/signed URL |
+| P5-8 | Script diagnostik `scripts/test-media-engine.ts` — jalankan generate end-to-end, log biaya aktual & waktu proses tiap provider per panggilan | Laporan cost/kualitas nyata untuk keputusan lanjut/ganti provider |
 
-**DoD Phase 5**: Transaksi kredit/subscription sandbox berhasil, teruji tidak ada race condition (replikasi test yang sama seperti audit Klip-AI sebelumnya).
+**DoD Phase 5**: Lewat script (bukan UI), companion bisa menghasilkan foto
+avatar photorealistic + voice clip + video talking-head, semua tersimpan
+& bisa diputar/ditampilkan, sudah melalui moderasi multimodal. Ada
+laporan biaya aktual per generate (image/voice/video) sebagai dasar
+desain paket kredit di Phase 7 — TANPA billing enforcement apa pun di
+fase ini.
 
 ---
 
@@ -118,134 +138,58 @@ Tujuan: implementasi kebijakan dari `docs/09-safety-and-trust/` jadi kode nyata 
 
 | ID | Task | Output |
 |---|---|---|
-| P6-1 | `apps/web` — halaman auth (login/register) | Bisa login dari UI |
+| P6-1 | `apps/web` — halaman auth (login/register, termasuk field tanggal lahir P4-3 & layar AI disclosure onboarding P4-2) | Bisa login dari UI |
 | P6-2 | Halaman chat/companion utama | Bisa chat dari UI, hasil sama dengan Postman test |
 | P6-3 | Dashboard karakter (buat/edit companion) | CRUD companion dari UI |
-| P6-4 | Halaman billing/wallet | Top-up & lihat saldo dari UI |
-| P6-5 | `packages/ui` — komponen shared (button, card, chat bubble, dll) | Dipakai konsisten di semua halaman |
+| P6-4 | Tampilan avatar/voice/video companion (hasil Phase 5) di UI chat | Foto/video companion tampil, bukan cuma teks |
+| P6-5 | `packages/ui` — komponen shared (button, card, chat bubble, media player, dll) | Dipakai konsisten di semua halaman |
 
-**DoD Phase 6**: User baru bisa daftar → buat companion → chat → top-up kredit, semua dari browser tanpa Postman.
-
----
-
-## PHASE 7 — Mobile App (target: 2-3 minggu, setelah Phase 6 stabil)
-
-| ID | Task | Output |
-|---|---|---|
-| P7-1 | `apps/mobile` skeleton (Expo) | Build jalan di simulator |
-| P7-2 | Reuse `packages/ui` & `packages/types` semaksimal mungkin | Minim duplikasi kode dengan web |
-| P7-3 | Auth + chat flow mobile | Fitur inti parity dengan web |
-| P7-4 | EAS build Android preview (pola yang sudah pernah sukses di project Klip Anda) | APK bisa di-install & dites |
-
-**DoD Phase 7**: APK preview bisa dipakai untuk chat end-to-end di device Android nyata.
+**DoD Phase 6**: User baru bisa daftar → ack AI disclosure → buat companion
+→ chat (dengan avatar/media kalau sudah di-generate di Phase 5) — semua
+dari browser tanpa Postman. Halaman billing/wallet BELUM ada di fase ini
+(nunggu Phase 7).
 
 ---
 
-## PHASE 8 — Media Engine (target: 2 minggu, opsional/bisa mundur)
+## PHASE 7 — Billing & Monetization (target: 1-2 minggu)
 
 | ID | Task | Output |
 |---|---|---|
-| P8-1 | `core/infrastructure/providers/{voice,image,video}` | Adapter provider siap |
-| P8-2 | `core/runtime/media` — orkestrasi generate voice note/image dari companion | Companion bisa kirim voice/image balasan |
-| P8-3 | Storage integration (`core/infrastructure/storage`) | Media tersimpan & bisa diakses via CDN/signed URL |
+| P7-1 | `core/domain/wallet`, `credit`, `subscription`, `transaction` | Unit test lolos |
+| P7-2 | Integrasi payment gateway (Midtrans, konsisten dengan Klip-AI) | Sandbox transaction sukses |
+| P7-3 | Credit deduction pakai `prisma.$transaction` + `updateMany` guard (pelajaran dari race condition Klip-AI) | Test concurrent request tidak double-deduct |
+| P7-4 | Webhook handler payment, idempotent | Test replay webhook tidak duplikat transaksi |
+| P7-5 | Kalibrasi paket kredit media (image/voice/video) berdasarkan data biaya aktual dari P5-8 | Harga paket kredit UMKM Indonesia yang masuk akal & menutup biaya provider |
+| P7-6 | Halaman billing/wallet di `apps/web` (`P6-4` versi lama, dipindah ke sini) | Top-up & lihat saldo dari UI |
 
-**DoD Phase 8**: Companion bisa membalas dengan voice note atau image, tersimpan dan bisa diputar/ditampilkan di UI.
+**DoD Phase 7**: Transaksi kredit/subscription sandbox berhasil, teruji
+tidak ada race condition (replikasi test yang sama seperti audit Klip-AI
+sebelumnya), dan paket kredit media sudah dikalibrasi dari data biaya
+nyata Phase 5 — bukan tebakan.
+
+---
+
+## PHASE 8 — Mobile App (target: 2-3 minggu, setelah Phase 6 & 7 stabil)
+
+| ID | Task | Output |
+|---|---|---|
+| P8-1 | `apps/mobile` skeleton (Expo) | Build jalan di simulator |
+| P8-2 | Reuse `packages/ui` & `packages/types` semaksimal mungkin | Minim duplikasi kode dengan web |
+| P8-3 | Auth + chat + media (foto/video companion) flow mobile | Fitur inti parity dengan web |
+| P8-4 | Halaman billing mobile | Top-up & lihat saldo dari app |
+| P8-5 | EAS build Android preview (pola yang sudah pernah sukses di project Klip Anda) | APK bisa di-install & dites |
+
+**DoD Phase 8**: APK preview bisa dipakai untuk chat + lihat media
+companion + top-up kredit end-to-end di device Android nyata.
 
 ---
 
 ## PHASE 9 — Scaling & Microservices Migration (FUTURE — hanya jika load menuntut)
 
-Jangan dikerjakan kecuali ada bukti konkret (metrik load, biaya infra, atau tim bertambah besar) yang menunjukkan modular monolith sudah jadi bottleneck. Kalau saatnya tiba: pisahkan `core/runtime/conversation` jadi `_future/services/companion-service` duluan (paling I/O-heavy), baru service lain menyusul satu-satu.
-
----
-
-## PROGRESS TRACKER (copy ke `PROGRESS.md` di root repo)
-
-```markdown
-# PAO Companion — Progress
-
-Update tiap task selesai. Checklist ini = source of truth status project.
-
-## Phase 0 — Bootstrap
-- [ ] P0-1 Root config
-- [ ] P0-2 Lint/Prettier shared
-- [ ] P0-3 apps/api skeleton
-- [ ] P0-4 apps/web skeleton
-- [ ] P0-5 Prisma + DB
-- [ ] P0-6 CI pipeline
-- [ ] P0-7 .env.example
-**Status Phase 0**: ⬜ Belum mulai / 🟡 Berjalan / ✅ Selesai
-
-## Phase 1 — Core Domain
-- [ ] P1-1 Schema User/Companion/Character
-- [ ] P1-2 Domain User
-- [ ] P1-3 Domain Companion
-- [ ] P1-4 Auth flow
-- [ ] P1-5 Shared errors/logger/validation
-- [ ] P1-6 Auth guard
-**Status Phase 1**: ⬜/🟡/✅
-
-## Phase 2 — Vertical Slice Percakapan
-- [ ] P2-1 Domain Conversation
-- [ ] P2-2 Provider adapter LLM
-- [ ] P2-3 Prompt builder
-- [ ] P2-4 Context assembler
-- [ ] P2-5 Provider runtime orchestration
-- [ ] P2-6 Conversation runtime orchestration
-- [ ] P2-7 API endpoint chat
-- [ ] P2-8 Integration test
-**Status Phase 2**: ⬜/🟡/✅
-
-## Phase 3 — Companion Engine
-- [ ] P3-1 Memory
-- [ ] P3-2 Relationship
-- [ ] P3-3 Timeline
-- [ ] P3-4 Character diperluas
-- [ ] P3-5 Context/prompt update
-- [ ] P3-6 Integration test konsistensi
-**Status Phase 3**: ⬜/🟡/✅
-
-## Phase 4 — Safety & Trust
-- [ ] P4-1 Content moderation
-- [ ] P4-2 AI disclosure
-- [ ] P4-3 Verifikasi usia
-- [ ] P4-4 Deteksi distress/crisis
-- [ ] P4-5 Data retention
-**Status Phase 4**: ⬜/🟡/✅
-
-## Phase 5 — Billing
-- [ ] P5-1 Domain wallet/credit/subscription/transaction
-- [ ] P5-2 Payment gateway sandbox
-- [ ] P5-3 Credit deduction atomik
-- [ ] P5-4 Webhook idempotent
-**Status Phase 5**: ⬜/🟡/✅
-
-## Phase 6 — Web
-- [ ] P6-1 Auth pages
-- [ ] P6-2 Chat page
-- [ ] P6-3 Companion dashboard
-- [ ] P6-4 Billing page
-- [ ] P6-5 packages/ui
-**Status Phase 6**: ⬜/🟡/✅
-
-## Phase 7 — Mobile
-- [ ] P7-1 Expo skeleton
-- [ ] P7-2 Reuse packages
-- [ ] P7-3 Auth + chat mobile
-- [ ] P7-4 EAS build preview
-**Status Phase 7**: ⬜/🟡/✅
-
-## Phase 8 — Media Engine
-- [ ] P8-1 Provider adapter voice/image/video
-- [ ] P8-2 Media runtime
-- [ ] P8-3 Storage integration
-**Status Phase 8**: ⬜/🟡/✅
-```
-
----
+Jangan dikerjakan kecuali ada bukti konkret (metrik load, biaya infra, atau tim bertambah besar) yang menunjukkan modular monolith sudah jadi bottleneck. Kalau saatnya tiba: pisahkan `core/runtime/conversation` jadi `_future/services/companion-service` duluan (paling I/O-heavy), baru service lain menyusul satu-satu. 
 
 ## Aturan monitoring tambahan
 1. **Satu PR = satu ID task** (atau grup kecil ID terkait) — jangan gabung banyak Phase dalam satu PR besar, supaya history jelas kapan sesuatu selesai.
 2. **CI harus hijau sebelum merge** — jangan biarkan lint/test merah menumpuk.
 3. **DoD Phase adalah gate, bukan saran** — kalau ada godaan mulai Phase 3 sebelum Phase 2 DoD tercapai (mis. "sekalian aja tambah memory sekarang"), tahan dulu. Ini pola yang sebelumnya bikin Suro & Buya punya banyak dokumen tapi kode inti kosong.
-4. Review `PROGRESS.md` tiap akhir minggu — kalau satu Phase macet >1 minggu dari estimasi, itu sinyal untuk break down task-nya lebih kecil lagi, bukan dipaksa lanjut.
+4. Review `PROGRESS.md` tiap akhir minggu — kalau satu Phase macet >1 minggu dari estimasi, itu sinyal untuk break down task-nya lebih kecil lagi, bukan dipaksa lanjut. 

@@ -1,0 +1,35 @@
+name: Data Retention
+
+# P4-5 — anonimkan user tidak aktif > 24 bulan & purge data personal
+# companion terkait. Lihat docs/09-safety-and-trust/data-privacy.md.
+
+on:
+  schedule:
+    # 03:00 WIB (UTC+7) = 19:20 UTC hari sebelumnya
+    - cron: "20 19 * * *"
+  workflow_dispatch: {} # bisa dipicu manual dari tab Actions untuk verifikasi
+
+jobs:
+  run-retention:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: pnpm db:generate
+
+      - name: Run data retention job
+        run: pnpm exec ts-node --transpile-only scripts/run-data-retention.ts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}

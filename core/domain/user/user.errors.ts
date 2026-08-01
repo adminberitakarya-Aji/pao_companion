@@ -27,3 +27,35 @@ export class InvalidCredentialsError extends DomainError {
     super("Email atau password salah");
   }
 }
+
+// Phase 4 (P4-3) — Verifikasi usia. Produk ini punya persona
+// GIRLFRIEND/BOYFRIEND (companion romantis), jadi batas usia registrasi
+// adalah 18 tahun, bukan cuma "anak-anak ditolak". Dicek di User.create()
+// supaya TIDAK ADA jalur lain (use-case lupa validasi, dsb.) yang bisa
+// membuat User di bawah umur tercipta.
+export class UnderageRegistrationError extends DomainError {
+  readonly code = "USER_UNDERAGE_REGISTRATION";
+  readonly httpStatus = 403;
+
+  constructor() {
+    super("Pendaftaran ditolak: layanan ini hanya untuk pengguna berusia 18 tahun ke atas");
+  }
+}
+
+export class InvalidDateOfBirthError extends DomainError {
+  readonly code = "USER_INVALID_DATE_OF_BIRTH";
+  readonly httpStatus = 400;
+
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class UserNotFoundError extends DomainError {
+  readonly code = "USER_NOT_FOUND";
+  readonly httpStatus = 404;
+
+  constructor(userId: string) {
+    super(`User tidak ditemukan: ${userId}`);
+  }
+}

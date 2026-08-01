@@ -67,6 +67,11 @@ class InMemoryMessageRepository implements MessageRepository {
       .filter((m) => m.conversationId === query.conversationId)
       .slice(-query.limit);
   }
+  async countCompanionMessages(conversationId: string) {
+    return this.messages.filter(
+      (m) => m.conversationId === conversationId && m.role === "companion",
+    ).length;
+  }
 }
 
 class FakeLlmProvider implements LlmProvider {

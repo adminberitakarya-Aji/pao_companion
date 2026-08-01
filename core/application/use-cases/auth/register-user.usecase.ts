@@ -30,6 +30,10 @@ export class RegisterUserUseCase {
       email: input.email,
       passwordHash,
       name: input.name,
+      // new Date("invalid string") -> Invalid Date, ditangkap & dilempar
+      // sebagai InvalidDateOfBirthError di dalam User.create() (bukan di
+      // sini) — satu tempat validasi, konsisten dengan aturan lain.
+      dateOfBirth: new Date(input.dateOfBirth),
     });
 
     await this.userRepository.save(user);

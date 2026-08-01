@@ -81,6 +81,11 @@ class InMemoryMessageRepository implements MessageRepository {
       .filter((m) => m.conversationId === query.conversationId)
       .slice(-query.limit);
   }
+  async countCompanionMessages(conversationId: string) {
+    return this.messages.filter(
+      (m) => m.conversationId === conversationId && m.role === "companion",
+    ).length;
+  }
 }
 
 class InMemoryMemoryRepository implements MemoryRepository {
@@ -135,12 +140,20 @@ class FakeChatProvider implements LlmProvider {
   }
 }
 
-// Fake provider extraction — selalu balas 1 fakta (deterministik), supaya
-// pertumbuhan jumlah Memory bisa diprediksi persis di assertion.
+// Fake provider extraction — balas 1 fakta BARU tiap panggilan (bukan
+// fakta yang identik tiap kali) supaya kompatibel dengan dedup exact-match
+// yang sekarang ada di MemoryRuntime (lihat MEMORY_DEDUP_PATCH_NOTES.md).
+// Fakta identik tiap ronde TIDAK merepresentasikan perilaku extractor
+// sungguhan — percakapan 15 ronde yang benar-benar berbeda isinya wajar
+// menghasilkan 15 fakta yang berbeda pula, jadi fake ini disesuaikan
+// supaya tetap deterministik TAPI realistis (unik per ronde), sambil
+// assertion "1 memory baru per pertukaran" di bawah tetap teruji jujur.
 class FakeMemoryExtractionProvider implements Pick<LlmProvider, "generateReply"> {
+  private callCount = 0;
   async generateReply(): Promise<LlmGenerateResult> {
+    this.callCount += 1;
     return {
-      content: JSON.stringify(["Fakta contoh yang diekstrak dari pesan ini"]),
+      content: JSON.stringify([`Fakta ke-${this.callCount} yang diekstrak dari pesan ini`]),
       providerId: "fake-extraction",
     };
   }

@@ -46,4 +46,10 @@ export class PrismaMessageRepository implements MessageRepository {
         }),
       );
   }
+
+  async countCompanionMessages(conversationId: string): Promise<number> {
+    return this.prisma.message.count({
+      where: { conversationId, role: "COMPANION" },
+    });
+  }
 }

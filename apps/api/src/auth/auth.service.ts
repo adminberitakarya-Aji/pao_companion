@@ -5,6 +5,7 @@ import { PrismaUserRepository } from "../../../../core/infrastructure/database/r
 import { BcryptPasswordHasher } from "../../../../core/infrastructure/security/bcrypt-password-hasher";
 import { RegisterUserUseCase } from "../../../../core/application/use-cases/auth/register-user.usecase";
 import { LoginUserUseCase } from "../../../../core/application/use-cases/auth/login-user.usecase";
+import { AcknowledgeAiDisclosureUseCase } from "../../../../core/application/use-cases/user/acknowledge-ai-disclosure.usecase";
 import { ConsoleLogger } from "../../../../core/shared/logger/logger";
 import { RegisterUserInput, LoginUserInput, AuthResult } from "../../../../core/application/dto/auth.dto";
 
@@ -14,6 +15,7 @@ import { RegisterUserInput, LoginUserInput, AuthResult } from "../../../../core/
 export class AuthService {
   private readonly registerUseCase: RegisterUserUseCase;
   private readonly loginUseCase: LoginUserUseCase;
+  private readonly acknowledgeAiDisclosureUseCase: AcknowledgeAiDisclosureUseCase;
 
   constructor(
     prisma: PrismaService,
@@ -35,6 +37,10 @@ export class AuthService {
       tokenIssuer,
       logger,
     );
+    this.acknowledgeAiDisclosureUseCase = new AcknowledgeAiDisclosureUseCase(
+      userRepository,
+      logger,
+    );
   }
 
   async register(input: RegisterUserInput): Promise<AuthResult> {
@@ -43,5 +49,11 @@ export class AuthService {
 
   async login(input: LoginUserInput): Promise<AuthResult> {
     return this.loginUseCase.execute(input);
+  }
+
+  // Phase 4 (P4-2) — dipanggil dari layar onboarding web/mobile saat user
+  // menekan "Saya mengerti" pada pemberitahuan AI disclosure.
+  async acknowledgeAiDisclosure(userId: string): Promise<{ aiDisclosureAckedAt: Date }> {
+    return this.acknowledgeAiDisclosureUseCase.execute(userId);
   }
 }

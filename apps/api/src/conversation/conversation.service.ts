@@ -6,6 +6,8 @@ import { PrismaMessageRepository } from "../../../../core/infrastructure/databas
 import { PrismaMemoryRepository } from "../../../../core/infrastructure/database/repositories/prisma-memory.repository";
 import { PrismaRelationshipRepository } from "../../../../core/infrastructure/database/repositories/prisma-relationship.repository";
 import { PrismaTimelineEventRepository } from "../../../../core/infrastructure/database/repositories/prisma-timeline-event.repository";
+import { PrismaModerationFlagRepository } from "../../../../core/infrastructure/database/repositories/prisma-moderation-flag.repository";
+import { PrismaCrisisEventRepository } from "../../../../core/infrastructure/database/repositories/prisma-crisis-event.repository";
 import { ContextAssembler } from "../../../../core/runtime/context/context-assembler.service";
 import { PromptBuilder } from "../../../../core/runtime/prompt/prompt-builder.service";
 import { ProviderRuntime } from "../../../../core/runtime/provider/provider-runtime.service";
@@ -15,6 +17,9 @@ import { RelationshipScorer } from "../../../../core/runtime/relationship/relati
 import { TimelineRuntime } from "../../../../core/runtime/timeline/timeline-runtime.service";
 import { MemoryRuntime } from "../../../../core/runtime/memory/memory-runtime.service";
 import { MemoryExtractor } from "../../../../core/runtime/memory/memory-extractor.service";
+import { ContentModerator } from "../../../../core/runtime/moderation/content-moderator.service";
+import { CrisisDetector } from "../../../../core/runtime/crisis/crisis-detector.service";
+import { AiDisclosureReminder } from "../../../../core/runtime/disclosure/ai-disclosure.service";
 import { LlmProviderFactory } from "../../../../core/infrastructure/providers/llm/llm-provider.factory";
 import { GeminiFlashProvider } from "../../../../core/infrastructure/providers/llm/gemini-flash.provider";
 import { ConsoleLogger } from "../../../../core/shared/logger/logger";
@@ -23,9 +28,11 @@ import { HandleUserMessageResult } from "../../../../core/runtime/conversation/c
 
 const DEFAULT_HISTORY_LIMIT = 50;
 
-// Wiring lengkap Phase 3 — Memory, Relationship, Timeline semua dirakit
-// di sini dan disuntikkan ke ConversationRuntime. Business logic tetap
-// sepenuhnya di core/, file ini HANYA merakit dependency.
+// Wiring lengkap Phase 4 — Content Moderator, Crisis Detector, dan AI
+// Disclosure Reminder semua dirakit di sini dan disuntikkan ke
+// ConversationRuntime, sama seperti Memory/Relationship/Timeline di
+// Phase 3. Business logic tetap sepenuhnya di core/, file ini HANYA
+// merakit dependency.
 @Injectable()
 export class ConversationService {
   private readonly companionRepository: PrismaCompanionRepository;
@@ -40,6 +47,8 @@ export class ConversationService {
     const memoryRepository = new PrismaMemoryRepository(prisma);
     const relationshipRepository = new PrismaRelationshipRepository(prisma);
     const timelineEventRepository = new PrismaTimelineEventRepository(prisma);
+    const moderationFlagRepository = new PrismaModerationFlagRepository(prisma);
+    const crisisEventRepository = new PrismaCrisisEventRepository(prisma);
 
     const contextAssembler = new ContextAssembler(
       this.companionRepository,
@@ -64,6 +73,10 @@ export class ConversationService {
     const memoryExtractor = new MemoryExtractor(new GeminiFlashProvider(), logger);
     const memoryRuntime = new MemoryRuntime(memoryRepository, memoryExtractor, logger);
 
+    const contentModerator = new ContentModerator();
+    const crisisDetector = new CrisisDetector();
+    const aiDisclosureReminder = new AiDisclosureReminder();
+
     this.conversationRuntime = new ConversationRuntime(
       this.conversationRepository,
       this.messageRepository,
@@ -74,6 +87,11 @@ export class ConversationService {
       relationshipRuntime,
       timelineRuntime,
       memoryRuntime,
+      contentModerator,
+      moderationFlagRepository,
+      crisisDetector,
+      crisisEventRepository,
+      aiDisclosureReminder,
     );
   }
 

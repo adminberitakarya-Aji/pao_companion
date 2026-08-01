@@ -41,6 +41,26 @@ enum SpeechStyle {
   CONFIDENT
 }
 
+// Phase 4 — Safety & Trust
+enum ModerationCategory {
+  SEXUAL_MINOR
+  SEXUAL_NONCONSENSUAL
+  SELF_HARM_INSTRUCTION
+  VIOLENCE_EXTREME
+  ILLEGAL_ACTIVITY
+  HATE_HARASSMENT
+}
+
+enum ModerationAction {
+  FLAG
+  BLOCK
+}
+
+enum ModerationSource {
+  USER
+  COMPANION
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -48,6 +68,11 @@ model User {
   name         String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  // Phase 4 — Safety & Trust
+  dateOfBirth         DateTime // wajib >= 18 tahun, divalidasi di domain (User.create) — lihat P4-3
+  aiDisclosureAckedAt DateTime? // kapan user meng-ack layar onboarding "companion ini AI" — P4-2
+  anonymizedAt        DateTime? // diisi oleh job retensi data (P4-5), null = belum dianonimkan
 
   companion Companion?
 
@@ -73,6 +98,8 @@ model Companion {
   memories       Memory[]
   relationship   Relationship?
   timelineEvents TimelineEvent[]
+  moderationFlags ModerationFlag[]
+  crisisEvents    CrisisEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -144,4 +171,46 @@ model TimelineEvent {
 
   @@index([companionId, createdAt])
   @@map("timeline_events")
+}
+
+// Phase 4 (P4-1) — audit trail Content Moderator. conversationId/messageId
+// nullable karena pesan yang di-block TIDAK PERNAH tersimpan sebagai
+// Message (dicegah SEBELUM save) — flag tetap tercatat, tapi tanpa
+// referensi ke Message yang memang sengaja tidak pernah ada.
+model ModerationFlag {
+  id             String             @id @default(cuid())
+  companionId    String
+  companion      Companion          @relation(fields: [companionId], references: [id])
+  conversationId String?
+  messageId      String?
+
+  source         ModerationSource
+  category       ModerationCategory
+  action         ModerationAction
+  matchedTerm    String
+  contentSnippet String
+
+  createdAt DateTime @default(now())
+
+  @@index([companionId, createdAt])
+  @@map("moderation_flags")
+}
+
+// Phase 4 (P4-4) — audit trail CrisisDetector. Selalu punya
+// conversationId karena crisis hanya dievaluasi dalam konteks percakapan
+// yang sudah berjalan (beda dari ModerationFlag yang bisa muncul sebelum
+// pesan tersimpan).
+model CrisisEvent {
+  id             String    @id @default(cuid())
+  companionId    String
+  companion      Companion @relation(fields: [companionId], references: [id])
+  conversationId String
+
+  keyword        String
+  messageSnippet String
+
+  createdAt DateTime @default(now())
+
+  @@index([companionId, createdAt])
+  @@map("crisis_events")
 }

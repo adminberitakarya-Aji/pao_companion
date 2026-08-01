@@ -16,6 +16,9 @@ export class PrismaUserRepository implements UserRepository {
       email: record.email,
       passwordHash: record.passwordHash,
       name: record.name,
+      dateOfBirth: record.dateOfBirth,
+      aiDisclosureAckedAt: record.aiDisclosureAckedAt,
+      anonymizedAt: record.anonymizedAt,
       createdAt: record.createdAt,
     });
   }
@@ -28,6 +31,9 @@ export class PrismaUserRepository implements UserRepository {
       email: record.email,
       passwordHash: record.passwordHash,
       name: record.name,
+      dateOfBirth: record.dateOfBirth,
+      aiDisclosureAckedAt: record.aiDisclosureAckedAt,
+      anonymizedAt: record.anonymizedAt,
       createdAt: record.createdAt,
     });
   }
@@ -40,11 +46,14 @@ export class PrismaUserRepository implements UserRepository {
         email: user.email,
         passwordHash: user.passwordHash,
         name: user.name,
+        dateOfBirth: user.dateOfBirth,
+        aiDisclosureAckedAt: user.aiDisclosureAckedAt,
       },
       update: {
         email: user.email,
         passwordHash: user.passwordHash,
         name: user.name,
+        aiDisclosureAckedAt: user.aiDisclosureAckedAt,
       },
     });
   }

@@ -25,7 +25,8 @@
     "test:relationship": "dotenv -e .env -- ts-node --transpile-only scripts/test-relationship-runtime.ts",
     "test:timeline": "dotenv -e .env -- ts-node --transpile-only scripts/test-timeline-runtime.ts",
     "test:character-extended": "ts-node --transpile-only scripts/test-character-extended.ts",
-    "test:full-conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-full-conversation.ts"
+    "test:full-conversation": "dotenv -e .env -- ts-node --transpile-only scripts/test-full-conversation.ts",
+    "retention:run": "dotenv -e .env -- ts-node --transpile-only scripts/run-data-retention.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1"
